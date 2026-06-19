@@ -5,8 +5,12 @@ from auth import login_user
 
 from database import create_tables
 
-from exam_manager import create_exam
-from exam_manager import get_all_exams
+from exam_manager import (
+    create_exam,
+    get_all_exams,
+    add_question,
+    get_questions
+)
 
 create_tables()
 
@@ -44,7 +48,9 @@ if not st.session_state.logged_in:
 
         st.header("Student Registration")
 
-        username = st.text_input("Username")
+        username = st.text_input(
+            "Username"
+        )
 
         password = st.text_input(
             "Password",
@@ -65,10 +71,10 @@ if not st.session_state.logged_in:
             else:
 
                 st.error(
-                    "Username Already Exists"
+                    "Username Exists"
                 )
 
-    elif menu == "Login":
+    else:
 
         st.header("Login")
 
@@ -99,7 +105,7 @@ if not st.session_state.logged_in:
             else:
 
                 st.error(
-                    "Invalid Credentials"
+                    "Invalid Login"
                 )
 
 # ==========================
@@ -112,12 +118,8 @@ else:
         f"Welcome {st.session_state.username}"
     )
 
-    st.write(
-        f"Role : {st.session_state.role}"
-    )
-
     # ----------------------
-    # ADMIN DASHBOARD
+    # ADMIN
     # ----------------------
 
     if st.session_state.role == "admin":
@@ -128,15 +130,17 @@ else:
             "Admin Menu",
             [
                 "Create Exam",
-                "View Exams"
+                "View Exams",
+                "Add Question",
+                "View Questions"
             ]
         )
 
+        # ------------------
         # CREATE EXAM
+        # ------------------
 
         if page == "Create Exam":
-
-            st.subheader("Create New Exam")
 
             exam_name = st.text_input(
                 "Exam Name"
@@ -157,16 +161,14 @@ else:
                 )
 
                 st.success(
-                    "Exam Created Successfully"
+                    "Exam Created"
                 )
 
+        # ------------------
         # VIEW EXAMS
+        # ------------------
 
         elif page == "View Exams":
-
-            st.subheader(
-                "Available Exams"
-            )
 
             exams = get_all_exams()
 
@@ -183,7 +185,7 @@ else:
                     )
 
                     st.write(
-                        f"Duration : {exam[2]} Minutes"
+                        f"Duration : {exam[2]} mins"
                     )
 
                     st.divider()
@@ -191,11 +193,145 @@ else:
             else:
 
                 st.info(
-                    "No Exams Created"
+                    "No Exams Found"
                 )
 
+        # ------------------
+        # ADD QUESTION
+        # ------------------
+
+        elif page == "Add Question":
+
+            exams = get_all_exams()
+
+            if not exams:
+
+                st.warning(
+                    "Create an exam first"
+                )
+
+            else:
+
+                exam_dict = {
+                    f"{exam[0]} - {exam[1]}": exam[0]
+                    for exam in exams
+                }
+
+                selected_exam = st.selectbox(
+                    "Select Exam",
+                    list(exam_dict.keys())
+                )
+
+                exam_id = exam_dict[
+                    selected_exam
+                ]
+
+                question = st.text_area(
+                    "Question"
+                )
+
+                option1 = st.text_input(
+                    "Option A"
+                )
+
+                option2 = st.text_input(
+                    "Option B"
+                )
+
+                option3 = st.text_input(
+                    "Option C"
+                )
+
+                option4 = st.text_input(
+                    "Option D"
+                )
+
+                answer = st.selectbox(
+                    "Correct Answer",
+                    [
+                        option1,
+                        option2,
+                        option3,
+                        option4
+                    ]
+                )
+
+                if st.button(
+                    "Add Question"
+                ):
+
+                    add_question(
+                        exam_id,
+                        question,
+                        option1,
+                        option2,
+                        option3,
+                        option4,
+                        answer
+                    )
+
+                    st.success(
+                        "Question Added"
+                    )
+
+        # ------------------
+        # VIEW QUESTIONS
+        # ------------------
+
+        elif page == "View Questions":
+
+            exams = get_all_exams()
+
+            if exams:
+
+                exam_dict = {
+                    f"{exam[0]} - {exam[1]}": exam[0]
+                    for exam in exams
+                }
+
+                selected_exam = st.selectbox(
+                    "Select Exam",
+                    list(exam_dict.keys())
+                )
+
+                exam_id = exam_dict[
+                    selected_exam
+                ]
+
+                questions = get_questions(
+                    exam_id
+                )
+
+                for q in questions:
+
+                    st.write(
+                        f"Q: {q[1]}"
+                    )
+
+                    st.write(
+                        f"A) {q[2]}"
+                    )
+
+                    st.write(
+                        f"B) {q[3]}"
+                    )
+
+                    st.write(
+                        f"C) {q[4]}"
+                    )
+
+                    st.write(
+                        f"D) {q[5]}"
+                    )
+
+                    st.success(
+                        f"Answer: {q[6]}"
+                    )
+
+                    st.divider()
+
     # ----------------------
-    # STUDENT DASHBOARD
+    # STUDENT
     # ----------------------
 
     else:
@@ -205,7 +341,7 @@ else:
         )
 
         st.info(
-            "Exam Module Coming Next"
+            "Exam Attempt Module Coming Next"
         )
 
     # ----------------------
