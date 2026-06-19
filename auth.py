@@ -38,7 +38,11 @@ def login_user(username, password):
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT password FROM users WHERE username=?",
+        """
+        SELECT id, username, password, role
+        FROM users
+        WHERE username=?
+        """,
         (username,)
     )
 
@@ -47,11 +51,20 @@ def login_user(username, password):
     conn.close()
 
     if user:
-        stored_password = user[0]
 
-        return bcrypt.checkpw(
+        user_id = user[0]
+        uname = user[1]
+        stored_password = user[2]
+        role = user[3]
+
+        if bcrypt.checkpw(
             password.encode(),
             stored_password
-        )
+        ):
+            return {
+                "id": user_id,
+                "username": uname,
+                "role": role
+            }
 
-    return False
+    return None
