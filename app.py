@@ -5,20 +5,16 @@ from auth import login_user
 
 from database import create_tables
 
-from exam_manager import (
-    create_exam,
-    get_all_exams,
-    add_question,
-    get_questions
-)
+from exam_manager import *
 
 create_tables()
 
 st.set_page_config(
-    page_title="Online Examination System"
+    page_title="Online Examination System",
+    layout="wide"
 )
 
-# ------------------------
+# ------------------
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -29,13 +25,11 @@ if "username" not in st.session_state:
 if "role" not in st.session_state:
     st.session_state.role = ""
 
-# ------------------------
+# ------------------
 
 st.title("📝 Online Examination System")
 
-# ==========================
-# LOGIN / REGISTER
-# ==========================
+# LOGIN AREA
 
 if not st.session_state.logged_in:
 
@@ -44,13 +38,13 @@ if not st.session_state.logged_in:
         ["Login", "Register"]
     )
 
+    # REGISTER
+
     if menu == "Register":
 
         st.header("Student Registration")
 
-        username = st.text_input(
-            "Username"
-        )
+        username = st.text_input("Username")
 
         password = st.text_input(
             "Password",
@@ -73,6 +67,8 @@ if not st.session_state.logged_in:
                 st.error(
                     "Username Exists"
                 )
+
+    # LOGIN
 
     else:
 
@@ -105,12 +101,10 @@ if not st.session_state.logged_in:
             else:
 
                 st.error(
-                    "Invalid Login"
+                    "Invalid Credentials"
                 )
 
-# ==========================
-# DASHBOARDS
-# ==========================
+# DASHBOARD
 
 else:
 
@@ -118,15 +112,13 @@ else:
         f"Welcome {st.session_state.username}"
     )
 
-    # ----------------------
-    # ADMIN
-    # ----------------------
+    # ADMIN PANEL
 
     if st.session_state.role == "admin":
 
         st.header("👨‍💼 Admin Dashboard")
 
-        page = st.sidebar.radio(
+        menu = st.sidebar.radio(
             "Admin Menu",
             [
                 "Create Exam",
@@ -136,18 +128,14 @@ else:
             ]
         )
 
-        # ------------------
-        # CREATE EXAM
-        # ------------------
-
-        if page == "Create Exam":
+        if menu == "Create Exam":
 
             exam_name = st.text_input(
                 "Exam Name"
             )
 
             duration = st.number_input(
-                "Duration (minutes)",
+                "Duration",
                 min_value=1
             )
 
@@ -164,96 +152,67 @@ else:
                     "Exam Created"
                 )
 
-        # ------------------
-        # VIEW EXAMS
-        # ------------------
+        elif menu == "View Exams":
 
-        elif page == "View Exams":
+            exams = get_all_exams()
+
+            for exam in exams:
+
+                st.write(
+                    f"ID: {exam[0]}"
+                )
+
+                st.write(
+                    f"Exam: {exam[1]}"
+                )
+
+                st.write(
+                    f"Duration: {exam[2]}"
+                )
+
+                st.divider()
+
+        elif menu == "Add Question":
 
             exams = get_all_exams()
 
             if exams:
 
-                for exam in exams:
-
-                    st.write(
-                        f"ID : {exam[0]}"
-                    )
-
-                    st.write(
-                        f"Exam : {exam[1]}"
-                    )
-
-                    st.write(
-                        f"Duration : {exam[2]} mins"
-                    )
-
-                    st.divider()
-
-            else:
-
-                st.info(
-                    "No Exams Found"
-                )
-
-        # ------------------
-        # ADD QUESTION
-        # ------------------
-
-        elif page == "Add Question":
-
-            exams = get_all_exams()
-
-            if not exams:
-
-                st.warning(
-                    "Create an exam first"
-                )
-
-            else:
-
-                exam_dict = {
-                    f"{exam[0]} - {exam[1]}": exam[0]
-                    for exam in exams
+                exam_map = {
+                    f"{e[0]} - {e[1]}": e[0]
+                    for e in exams
                 }
 
-                selected_exam = st.selectbox(
+                selected = st.selectbox(
                     "Select Exam",
-                    list(exam_dict.keys())
+                    list(exam_map.keys())
                 )
 
-                exam_id = exam_dict[
-                    selected_exam
-                ]
+                exam_id = exam_map[selected]
 
                 question = st.text_area(
                     "Question"
                 )
 
-                option1 = st.text_input(
+                op1 = st.text_input(
                     "Option A"
                 )
 
-                option2 = st.text_input(
+                op2 = st.text_input(
                     "Option B"
                 )
 
-                option3 = st.text_input(
+                op3 = st.text_input(
                     "Option C"
                 )
 
-                option4 = st.text_input(
+                op4 = st.text_input(
                     "Option D"
                 )
 
                 answer = st.selectbox(
                     "Correct Answer",
-                    [
-                        option1,
-                        option2,
-                        option3,
-                        option4
-                    ]
+                    [op1, op2, op3, op4]
                 )
 
                 if st.button(
@@ -263,10 +222,10 @@ else:
                     add_question(
                         exam_id,
                         question,
-                        option1,
-                        option2,
-                        option3,
-                        option4,
+                        op1,
+                        op2,
+                        op3,
+                        op4,
                         answer
                     )
 
@@ -274,29 +233,23 @@ else:
                         "Question Added"
                     )
 
-        # ------------------
-        # VIEW QUESTIONS
-        # ------------------
-
-        elif page == "View Questions":
+        elif menu == "View Questions":
 
             exams = get_all_exams()
 
             if exams:
 
-                exam_dict = {
-                    f"{exam[0]} - {exam[1]}": exam[0]
-                    for exam in exams
+                exam_map = {
+                    f"{e[0]} - {e[1]}": e[0]
+                    for e in exams
                 }
 
-                selected_exam = st.selectbox(
+                selected = st.selectbox(
                     "Select Exam",
-                    list(exam_dict.keys())
+                    list(exam_map.keys())
                 )
 
-                exam_id = exam_dict[
-                    selected_exam
-                ]
+                exam_id = exam_map[selected]
 
                 questions = get_questions(
                     exam_id
@@ -305,46 +258,132 @@ else:
                 for q in questions:
 
                     st.write(
-                        f"Q: {q[1]}"
+                        f"Q: {q[2]}"
                     )
 
                     st.write(
-                        f"A) {q[2]}"
+                        f"A. {q[3]}"
                     )
 
                     st.write(
-                        f"B) {q[3]}"
+                        f"B. {q[4]}"
                     )
 
                     st.write(
-                        f"C) {q[4]}"
+                        f"C. {q[5]}"
                     )
 
                     st.write(
-                        f"D) {q[5]}"
+                        f"D. {q[6]}"
                     )
 
                     st.success(
-                        f"Answer: {q[6]}"
+                        f"Answer: {q[7]}"
                     )
 
                     st.divider()
 
-    # ----------------------
-    # STUDENT
-    # ----------------------
+    # STUDENT PANEL
 
     else:
 
-        st.header(
-            "🎓 Student Dashboard"
+        st.header("🎓 Student Dashboard")
+
+        menu = st.sidebar.radio(
+            "Student Menu",
+            [
+                "Take Exam",
+                "My Results"
+            ]
         )
 
-        st.info(
-            "Exam Attempt Module Coming Next"
-        )
+        # TAKE EXAM
 
-    # ----------------------
+        if menu == "Take Exam":
+
+            exams = get_all_exams()
+
+            if exams:
+
+                exam_map = {
+                    f"{e[1]} ({e[2]} mins)": e[0]
+                    for e in exams
+                }
+
+                selected_exam = st.selectbox(
+                    "Choose Exam",
+                    list(exam_map.keys())
+                )
+
+                exam_id = exam_map[selected_exam]
+
+                questions = get_questions(
+                    exam_id
+                )
+
+                answers = {}
+
+                for q in questions:
+
+                    answers[q[0]] = st.radio(
+                        q[2],
+                        [q[3], q[4], q[5], q[6]],
+                        key=q[0]
+                    )
+
+                if st.button(
+                    "Submit Exam"
+                ):
+
+                    score = 0
+
+                    for q in questions:
+
+                        if answers[q[0]] == q[7]:
+                            score += 1
+
+                    save_result(
+                        st.session_state.username,
+                        exam_id,
+                        score,
+                        len(questions)
+                    )
+
+                    st.success(
+                        f"Score: {score}/{len(questions)}"
+                    )
+
+                    st.balloons()
+
+        # RESULTS
+
+        elif menu == "My Results":
+
+            results = get_results(
+                st.session_state.username
+            )
+
+            if results:
+
+                for r in results:
+
+                    st.write(
+                        f"Exam ID: {r[2]}"
+                    )
+
+                    st.write(
+                        f"Score: {r[3]}/{r[4]}"
+                    )
+
+                    st.divider()
+
+            else:
+
+                st.info(
+                    "No Results Found"
+                )
+
+    # LOGOUT
 
     if st.button("Logout"):
 

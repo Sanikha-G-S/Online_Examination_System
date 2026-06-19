@@ -42,6 +42,16 @@ def create_tables():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS results(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        exam_id INTEGER,
+        score INTEGER,
+        total INTEGER
+    )
+    """)
+
     conn.commit()
     conn.close()
 

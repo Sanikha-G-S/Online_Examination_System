@@ -27,7 +27,7 @@ def get_all_exams():
 
     cursor.execute(
         """
-        SELECT id, exam_name, duration
+        SELECT id,exam_name,duration
         FROM exams
         """
     )
@@ -40,14 +40,13 @@ def get_all_exams():
 
 
 def add_question(
-    exam_id,
-    question,
-    option1,
-    option2,
-    option3,
-    option4,
-    answer
-):
+        exam_id,
+        question,
+        option1,
+        option2,
+        option3,
+        option4,
+        answer):
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -55,13 +54,13 @@ def add_question(
     cursor.execute(
         """
         INSERT INTO questions(
-            exam_id,
-            question,
-            option1,
-            option2,
-            option3,
-            option4,
-            answer
+        exam_id,
+        question,
+        option1,
+        option2,
+        option3,
+        option4,
+        answer
         )
         VALUES(?,?,?,?,?,?,?)
         """,
@@ -87,22 +86,67 @@ def get_questions(exam_id):
 
     cursor.execute(
         """
-        SELECT
-            id,
-            question,
-            option1,
-            option2,
-            option3,
-            option4,
-            answer
+        SELECT *
         FROM questions
         WHERE exam_id=?
         """,
         (exam_id,)
     )
 
-    questions = cursor.fetchall()
+    data = cursor.fetchall()
 
     conn.close()
 
-    return questions
+    return data
+
+
+def save_result(
+        username,
+        exam_id,
+        score,
+        total):
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO results(
+        username,
+        exam_id,
+        score,
+        total
+        )
+        VALUES(?,?,?,?)
+        """,
+        (
+            username,
+            exam_id,
+            score,
+            total
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_results(username):
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM results
+        WHERE username=?
+        """,
+        (username,)
+    )
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data
