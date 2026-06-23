@@ -95,8 +95,7 @@ if not st.session_state.logged_in:
         "  SELECT username, role FROM users"
            ).fetchall()
 
-           st.write("DEBUG USERS:", users)
-
+          
         except Exception as e:
            st.error(str(e))
 
