@@ -52,6 +52,42 @@ def create_tables():
     )
     """)
 
+    import bcrypt
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE username=?
+        """,
+        ("admin",)
+    )
+
+    admin = cursor.fetchone()
+
+    if not admin:
+
+        hashed = bcrypt.hashpw(
+            "admin123".encode(),
+            bcrypt.gensalt()
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO users(
+            username,
+            password,
+            role
+            )
+            VALUES(?,?,?)
+            """,
+            (
+                "admin",
+                hashed,
+                "admin"
+            )
+        )
+
     conn.commit()
     conn.close()
 
