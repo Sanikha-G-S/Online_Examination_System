@@ -85,7 +85,22 @@ if not st.session_state.logged_in:
         username = st.text_input(
             "Username"
         )
+        import sqlite3
 
+        conn = sqlite3.connect("exam.db")
+        cursor = conn.cursor()
+
+        try:
+           users = cursor.execute(
+        "  SELECT username, role FROM users"
+           ).fetchall()
+
+           st.write("DEBUG USERS:", users)
+
+        except Exception as e:
+           st.error(str(e))
+
+        conn.close()
         password = st.text_input(
             "Password",
             type="password"
