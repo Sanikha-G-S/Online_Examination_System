@@ -314,27 +314,26 @@ else:
                     )
 
                     st.divider()
+                elif menu == "Leaderboard":
 
-        elif menu == "Leaderboard":
+                st.subheader(
+                    "🏆 Leaderboard"
+                   )
 
-            st.subheader(
-                "🏆 Leaderboard"
-            )
+                df = get_leaderboard()
 
-            df = get_leaderboard()
+                if len(df) > 0:
 
-            if len(df) > 0:
-
-                st.dataframe(
-                    df,
-                    use_container_width=True
+                  st.dataframe(
+                  df,
+                  use_container_width=True
                 )
 
-            else:
+                else:
 
-                st.info(
-                    "No Results Available"
-                )  
+                  st.info(
+                  "No Results Available"
+                  )    
 
     # STUDENT PANEL
 
