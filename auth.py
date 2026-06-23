@@ -57,9 +57,14 @@ def login_user(username, password):
 
     if user:
 
+        stored_hash = user[2]
+
+        if isinstance(stored_hash, str):
+            stored_hash = stored_hash.encode()
+
         if bcrypt.checkpw(
             password.encode(),
-            user[2]
+            stored_hash
         ):
 
             return {
